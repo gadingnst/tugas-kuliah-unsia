@@ -1,110 +1,158 @@
-# Panduan Kupas Tuntas: Struktur Data Linked List (Senarai Berantai)
+# Panduan Ujian & Presentasi: Kupas Tuntas Linked List
+> **Topik Fokus:** Teori Dasar, Anatomi Node, Komparasi Array, Kelebihan/Kekurangan, & Dokumentasi Kode
 > **Implementasi Kode:** `gading/linked_list.py`
 > **Pembuat:** Gading Nst
 
 ---
 
-## 📌 Bagian 1: Pengenalan Dasar Linked List
+## 📌 Slide 1: Pendahuluan Linked List
 
-### Apa itu Linked List secara Dasar?
-**Linked List (Senarai Berantai)** adalah struktur data linear dinamis yang digunakan untuk menyimpan kumpulan data. 
+### Apa itu Linked List?
+**Linked List (Senarai Berantai)** adalah struktur data linear dinamis yang terdiri dari sekumpulan elemen yang disebut **Node (Simpul)**. 
 
-Bayangkan Linked List seperti **gerbong kereta api**. Setiap gerbong berisi barang (Data) dan rantai besi pengait (Pointer) yang menyambungkannya ke gerbong berikutnya.
+Berbeda dengan Array biasa yang menuntut penyimpanan data berdampingan secara fisik di dalam RAM (kontigu), Node pada Linked List dialokasikan secara dinamis di alamat memori mana saja secara tersebar. Hubungan antar elemen dibangun menggunakan variabel penunjuk alamat (**Pointer**).
+
+### 🚂 Analogi Sederhana
+Bayangkan Linked List seperti **gerbong kereta api**. Setiap gerbong memuat barang bawaan (Data) dan memiliki rantai pengait besi (Pointer) yang menghubungkannya ke gerbong berikutnya. Jika kita kehilangan gerbong lokomotif paling depan (**Head**), kita akan kehilangan jejak seluruh gerbong di belakangnya.
+
+---
+
+## 📌 Slide 2: Anatomi Node (Simpul) Linked List
+
+Simpul atau **Node** adalah unit pembentuk terkecil dari Linked List. Secara garis besar, sebuah Node wajib terbagi menjadi **dua bagian (atribut)**:
 
 ```text
-    Head (Lokomotif)
-     │
-     ▼
-┌──────────────┐      ┌──────────────┐      ┌──────────────┐
-│ Data | Pointer───►  │ Data | Pointer───►  │ Data | None  │ (Akhir Rantai)
-└──────────────┘      └──────────────┘      └──────────────┘
-    Gerbong 1             Gerbong 2             Gerbong 3
+               +───────────────────────────+
+               |   DATA   |  POINTER (NEXT)| ──► Menunjuk ke Node tetangga
+               +───────────────────────────+
 ```
 
-### Mengapa Kita Butuh Linked List? (Dibanding Array/List biasa)
-Pada Array biasa, data disimpan bersebelahan secara fisik di dalam RAM. 
-*   **Masalah Array:** Jika kita ingin menyisipkan data di tengah-tengah, komputer harus menggeser posisi seluruh data di kanannya satu per satu ke kanan. Proses ini memakan waktu lambat ($O(N)$).
-*   **Solusi Linked List:** Karena setiap simpul menyimpan alamat memori tetangganya, kita **tidak perlu menggeser data fisik**. Kita cukup memutus rantai pointer dan menyambungkannya ke simpul baru ($O(1)$).
+1.  **Bagian Data (Data Field):** 
+    Menyimpan nilai atau informasi aktual dari elemen tersebut (misalnya angka, teks, atau objek data lainnya).
+2.  **Bagian Pointer (Pointer Field / Next):**
+    Menyimpan alamat memori fisik dari Node berikutnya di RAM. Atribut pointer pada Node terakhir akan selalu bernilai `None` atau `NULL`, menandakan rantai telah berakhir.
+
+---
+
+## 📌 Slide 3: Jenis-Jenis Linked List (Garis Besar)
+
+Berdasarkan arah penunjuk pointernya, Linked List terbagi menjadi 3 jenis utama yang wajib Anda pahami secara konsep garis besar:
+
+### 1. Singly Linked List (Satu Arah)
+Varian paling dasar di mana setiap Node hanya memiliki satu pointer (`next`) yang menunjuk ke depan. Navigasi hanya bisa berjalan maju searah.
+```text
+   Head ──► [ Data | Next ] ──► [ Data | Next ] ──► NULL
+```
+
+### 2. Doubly Linked List (Dua Arah)
+Setiap Node memiliki dua pointer: `next` (menunjuk ke depan) dan `prev` (menunjuk ke belakang). Memungkinkan navigasi bolak-balik.
+```text
+   NULL ◄──► [ Prev | Data | Next ] ◄──► [ Prev | Data | Next ] ◄──► NULL
+```
+
+### 3. Circular Linked List (Melingkar)
+Pointer Node terakhir tidak menunjuk ke `NULL`, melainkan berputar kembali menunjuk ke Node pertama (`Head`), membentuk lingkaran tanpa ujung.
+```text
+   Head ──► [ Data | Next ] ──► [ Data | Next ] ──► (Kembali ke Head)
+              ▲                                        │
+              └────────────────────────────────────────┘
+```
+
+---
+
+## 📌 Slide 4: Kompleksitas Waktu: Array vs Linked List
+
+Berikut adalah tabel perbandingan performa (Big-O Time Complexity) antara Array dan Linked List untuk memukau dosen saat ujian presentasi:
+
+| Operasi Struktur Data | 📱 Array / Array List | 🔗 Linked List (Dasar) | Penjelasan Teknis |
+| :--- | :---: | :---: | :--- |
+| **Akses Elemen (Access)** | $O(1)$ | $O(N)$ | Array memiliki alamat memori berurutan sehingga bisa diakses langsung lewat indeks. Linked List harus ditelusuri dari depan satu per satu. |
+| **Pencarian Data (Search)** | $O(N)$ | $O(N)$ | Kedua struktur data sama-sama harus memeriksa data satu per satu dari awal sampai ketemu. |
+| **Penyisipan di Awal (Insert Front)** | $O(N)$ | $O(1)$ | Array harus menggeser semua data di kanannya. Linked List hanya perlu mengganti pointer Head secara instan. |
+| **Penyisipan di Akhir (Insert End)** | $O(1)$ *Amortized* | $O(N)$ atau $O(1)$* | Linked List bernilai $O(N)$ karena harus mencari ujung akhir terlebih dahulu, kecuali jika kita menyimpan pointer `Tail` ($O(1)$). |
+| **Penghapusan (Deletion)** | $O(N)$ | $O(1)$ atau $O(N)$ | Array harus merapatkan memori kembali. Linked List hanya memotong pointer simpul yang dibypass. |
+
+---
+
+## 📌 Slide 5: Kelebihan & Kekurangan Linked List
+
+Struktur data Linked List dirancang bukan untuk menggantikan Array, melainkan sebagai alternatif solusi dengan kelebihan dan kekurangan tersendiri:
+
+### ✅ Kelebihan Linked List:
+1.  **Ukuran Dinamis:** Kapasitas memori tidak perlu ditentukan di awal. Node baru bisa dialokasikan kapan saja selama memori RAM laptop masih cukup.
+2.  **Penyisipan & Penghapusan Cepat:** Operasi menambah atau menghapus elemen di awal rantai berjalan sangat instan ($O(1)$) tanpa pergeseran memori RAM.
+3.  **Bebas Pemborosan Memori Terfragmentasi:** Alokasi memori dinamis tersebar acak, sehingga memanfaatkan celah memori kosong kecil di RAM dengan maksimal.
+
+### ❌ Kekurangan Linked List:
+1.  **Konsumsi Memori Lebih Besar:** Setiap Node memakan memori ekstra untuk menyimpan alamat pointer tetangganya (di samping menyimpan data aktual).
+2.  **Tidak Ada Akses Acak (No Random Access):** Kita tidak bisa langsung memanggil `data[5]`. Kita terpaksa melakukan pencarian sekuensial dari Head secara berurutan.
+3.  **Sulit untuk Traversing Mundur:** Pada Linked List dasar satu arah, kita tidak bisa kembali ke elemen sebelumnya jika sudah terlewat.
 
 ---
 
 ## 📌 Bagian 2: Panduan Membuat Linked List Sederhana dari Nol (Python)
 
-Membuat Linked List dari dasar di Python sangat mudah jika Anda memahami dua kelas ini:
+Berikut adalah contoh pembuatan Linked List paling sederhana dari dasar di Python untuk mendemonstrasikan pemahaman Anda di depan dosen:
 
-### Langkah 1: Membuat Kelas Simpul (Node)
-Wadah terkecil untuk menyimpan satu elemen data dan penunjuk arah berikutnya.
+### 1. Definisikan Kelas Node (Wadah Simpul)
 ```python
 class Node:
     def __init__(self, data):
-        self.data = data    # Menyimpan barang/nilai di dalam simpul
-        self.next = None    # Pointer penunjuk berikutnya (default masih kosong)
+        self.data = data
+        self.next = None  # Pointer penunjuk berikutnya
 ```
 
-### Langkah 2: Menyambungkan Simpul Secara Manual
-Mari kita buat simpul-simpul terpisah lalu sambungkan rantainya secara manual agar Anda paham alurnya:
+### 2. Hubungkan Simpul Secara Manual
 ```python
-# 1. Buat 3 simpul terpisah di memori RAM
+# Buat simpul-simpul terpisah
 simpul1 = Node("Apel")
 simpul2 = Node("Pisang")
-simpul3 = Node("Ceri")
 
-# 2. Sambungkan pointer `next` dari satu simpul ke simpul selanjutnya
-simpul1.next = simpul2  # Simpul 1 menunjuk ke Simpul 2
-simpul2.next = simpul3  # Simpul 2 menunjuk ke Simpul 3
-
-# Hasil rantai di memori: "Apel" ──► "Pisang" ──► "Ceri" ──► None
+# Hubungkan pointer next simpul1 ke simpul2
+simpul1.next = simpul2  # Hasil: "Apel" ──► "Pisang" ──► None
 ```
 
-### Langkah 3: Membuat Kelas Pengendali Otomatis
-Untuk mengotomatisasi penyambungan data baru, kita buat kelas pengendali utama yang memegang gerbong terdepan (**Head**):
+### 3. Buat Kelas Pengendali Utama (`LinkedList`)
 ```python
 class LinkedListSederhana:
     def __init__(self):
-        self.head = None  # Mulanya rantai kosong tidak ada isinya
+        self.head = None  # Mulanya rantai kosong
 
-    # Fungsi untuk menyambungkan gerbong baru di ujung paling belakang
     def tambah_di_akhir(self, data_baru):
         node_baru = Node(data_baru)
-        
-        # Jika rantai masih kosong, langsung jadikan simpul baru sebagai Head
         if self.head is None:
             self.head = node_baru
             return
-            
-        # Jika sudah ada isi, berjalan melompati rantai hingga menemukan gerbong terakhir
+        
+        # Berjalan ke simpul paling ujung belakang
         current = self.head
         while current.next is not None:
             current = current.next
-            
-        # Sambungkan gerbong terakhir ke simpul baru
-        current.next = node_baru
+        current.next = node_baru  # Sambungkan di akhir
 ```
 
 ---
 
 ## 📌 Bagian 3: Detail Implementasi Kode (`gading/linked_list.py`)
 
-Setelah memahami konsep dasar Linked List di atas, kelas **`LinkedList`** yang kita gunakan di berkas **`gading/linked_list.py`** adalah perwujudan langsung dari struktur data Linked List dasar ini.
+Di dalam berkas program utama **`gading/linked_list.py`**, kita mengimplementasikan kelas `LinkedList` dasar satu arah secara lengkap:
 
-### Karakteristik Utama Kode:
-1.  **Struktur Satu Arah:** Setiap simpul Node menyimpan pointer `next` untuk menunjuk ke depan.
-2.  **Operasi Utama:**
-    *   `insert_at_beginning()`: Menyisipkan Node baru langsung di Head.
-    *   `insert_at_end()`: Menelusuri rantai ke belakang lalu menggantungkan Node baru.
-    *   `delete_value()`: Mencari simpul dengan nilai tertentu, lalu melakukan *bypass* pointer (memutuskan hubungan simpul tersebut agar dilewati rantai).
+*   **`insert_at_beginning(data)`**: Menyisipkan Node di depan secara instan ($O(1)$).
+*   **`insert_at_end(data)`**: Menelusuri seluruh rantai sampai ujung belakang untuk menambahkan Node baru ($O(N)$).
+*   **`delete_value(value)`**: Mencari Node target, lalu memutus hubungan pointernya dengan menghubungkan Node sebelum target langsung ke Node setelah target ($O(N)$).
+*   **`get_visualization()`**: Menghasilkan representasi string ASCII horizontal cantik yang menampilkan seluruh simpul di konsol.
 
 ---
 
 ## 📌 Bagian 4: Panduan Skenario Rekaman Video Presentasi
 
-Saat merekam video presentasi untuk bagian Linked List, ikuti alur penjelasan lisan berikut agar terdengar natural dan menguasai materi:
+Gunakan naskah panduan lisan berikut saat Anda merekam video untuk menunjukkan penguasaan materi yang matang:
 
-1.  **Pendahuluan Dasar (Kunci Sukses):**
-    > *"Halo Bapak/Ibu Dosen, kali ini saya akan menjelaskan konsep dasar Linked List. Sederhananya, Linked List adalah rantai simpul dinamis di memori komputer yang saling terhubung menggunakan pointer penunjuk arah, layaknya gerbong kereta api. Struktur ini memecahkan masalah kelemahan Array biasa yang boros waktu saat harus menggeser memori fisik."*
-2.  **Jelaskan Logika Dasar Pembuatan:**
-    *   Tunjukkan bagaimana kelas `Node` menyimpan data dan pointer `self.next`.
-    *   Jelaskan bahwa dengan memegang pointer terdepan (`self.head`), kita bisa menelusuri seluruh isi rantai dari awal hingga akhir.
-3.  **Jalankan Kode & Tunjukkan Aksi Dashboard:**
-    *   Jalankan program utama `python3 main.py` lalu buka **Menu 3** (Linked List).
-    *   Lakukan simulasi penambahan data, dan jelaskan bagaimana alamat memori pointer `──►` diperbarui secara real-time di layar konsol saat elemen baru ditambahkan.
+1.  **Pembuka Presentasi:**
+    > *"Selamat pagi/siang Bapak/Ibu Dosen. Saya Gading Nst. Hari ini saya akan mempresentasikan struktur data Linked List secara garis besar. Linked List adalah rantai simpul dinamis di memori komputer yang saling terhubung melalui pointer, mirip dengan gerbong kereta api."*
+2.  **Jelaskan Anatomi & Komparasi:**
+    *   Tunjukkan visualisasi Slide 2 bahwa Node terdiri dari **Data** dan **Pointer (Next)**.
+    *   Sebutkan keunggulan Linked List dibandingkan Array: *"Pada Array, kita harus menggeser memori fisik saat menyisipkan data. Namun pada Linked List, kita cukup mengganti alamat pointernya saja dalam waktu instan $O(1)$."*
+3.  **Tunjukkan Demonstrasi Live:**
+    *   Jalankan program interaktif Anda: `python3 main.py` lalu pilih **Menu 3** (Linked List).
+    *   Tunjukkan bagaimana simpul-simpul berantai tergambar di terminal dengan tanda panah pointer `──►` yang bergeser dinamis secara real-time saat Anda menambah atau menghapus elemen!
