@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Modul Struktur Data: Singly Linked List (Senarai Berantai Tunggal)
+Modul Struktur Data: Linked List (Senarai Berantai)
 Karakteristik: Elemen-elemen disimpan dalam objek 'Node' yang terhubung
 oleh pointer (penunjuk) alamat memori berikutnya. Tidak berurutan secara fisik di memori.
 """
@@ -15,10 +15,10 @@ class Node:
         self.next = None  # Menunjuk ke None secara default
 
 
-class SinglyLinkedList:
+class LinkedList:
     """
-    Representasi dari Singly Linked List.
-    Menyediakan operasi penyisipan, penghapusan, pencarian, dan visualisasi berantai.
+    Representasi dari Linked List Sederhana.
+    Menyediakan operasi dasar: penyisipan awal/akhir, penghapusan, pencarian, dan visualisasi.
     """
     def __init__(self):
         """Inisialisasi Linked List kosong dengan Head menunjuk ke None."""
@@ -121,14 +121,14 @@ class SinglyLinkedList:
         return " ──► ".join(parts)
 
 
-# Demo Penggunaan Linked List secara Mandiri (jika file dijalankan langsung)
+# Demo Penggunaan Linked List secara Mandiri
 if __name__ == "__main__":
     print("=" * 80)
-    print(" DEMO STRUKTUR DATA: SINGLY LINKED LIST (SENARAI BERANTAI TUNGGAL)")
+    print(" DEMO STRUKTUR DATA: LINKED LIST (SENARAI BERANTAI)")
     print("=" * 80)
     
     # Inisialisasi
-    ll = SinglyLinkedList()
+    ll = LinkedList()
     print("1. Linked List Baru Dibuat.")
     print(ll.get_visualization())
     print()
@@ -156,19 +156,10 @@ if __name__ == "__main__":
     # Pencarian
     search_val = "Node B"
     print(f"5. Melakukan pencarian nilai '{search_val}': Found? {ll.search(search_val)}")
-    search_val = "Node X"
-    print(f"6. Melakukan pencarian nilai '{search_val}': Found? {ll.search(search_val)}")
     print()
     
     # Penghapusan elemen
     del_val = "Node B"
     print(f"7. Menghapus Node bernilai '{del_val}': Success? {ll.delete_value(del_val)}")
     print(ll.get_visualization())
-    print()
-    
-    # Menghapus Head
-    del_val = "Node C"
-    print(f"8. Menghapus Head bernilai '{del_val}': Success? {ll.delete_value(del_val)}")
-    print(ll.get_visualization())
-    print(f"Ukuran akhir Linked List: {ll.size()} Node")
     print("=" * 80)

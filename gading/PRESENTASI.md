@@ -1,5 +1,5 @@
 # Panduan Presentasi: Struktur Data Majemuk Linear
-> **Topik:** Stack, Queue, Singly Linked List, & Dynamic Array List
+> **Topik:** Stack, Queue, Linked List, & Dynamic Array List
 > **Bahasa Pemrograman:** Python
 > **Pembuat:** Gading Nst
 
@@ -64,7 +64,7 @@ Queue adalah struktur data linear di mana elemen masuk dari ujung belakang (**RE
 
 ---
 
-## 📌 Slide 4: Singly Linked List (Senarai Berantai Tunggal)
+## 📌 Slide 4: Linked List (Senarai Berantai)
 ### Alokasi Memori Dinamis Non-Kontigu
 
 Linked List adalah sekumpulan **Node** (simpul) dinamis yang saling terhubung menggunakan **Pointer** (penunjuk alamat memori berikutnya). Berbeda dengan array, data di Linked List tidak disimpan berdampingan secara fisik di dalam RAM.

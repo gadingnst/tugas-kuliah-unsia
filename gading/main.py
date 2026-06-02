@@ -10,7 +10,7 @@ import time
 # Import modul struktur data kustom
 from stack import Stack
 from queue_custom import Queue
-from linked_list import SinglyLinkedList
+from linked_list import LinkedList
 from array_list import ArrayList
 
 # Kode warna ANSI untuk visualisasi premium di terminal Mac/Linux
@@ -154,16 +154,16 @@ def menu_queue():
             message = f"{RED}Pilihan tidak valid! Silakan masukkan angka 1-5.{RESET}"
 
 def menu_linked_list():
-    ll = SinglyLinkedList()
+    ll = LinkedList()
     # Isi data awal
     ll.insert_at_end("Node 1")
     ll.insert_at_end("Node 2")
     ll.insert_at_end("Node 3")
     
-    message = f"{GREEN}Singly Linked List berhasil diinisialisasi!{RESET}"
+    message = f"{GREEN}Linked List berhasil diinisialisasi!{RESET}"
     
     while True:
-        print_header("DEMO STRUKTUR DATA: SINGLY LINKED LIST (SENARAI BERANTAI)")
+        print_header("DEMO STRUKTUR DATA: LINKED LIST (SENARAI BERANTAI)")
         
         # Tampilkan Visualisasi Linked List
         print(f"{BOLD}Visualisasi Rantai Node (Pointer Chain) saat ini:{RESET}")
@@ -313,7 +313,7 @@ def main():
         print(f"{BLUE}{BOLD}{'=' * 70}{RESET}")
         print(f"{CYAN}{BOLD}      Aplikasi Simulasi Visualisasi Struktur Data Majemuk Linear    {RESET}")
         print(f"{BLUE}{BOLD}{'=' * 70}{RESET}")
-        print(f"  Topik: Stack | Queue | Singly Linked List | Dynamic Array List  ")
+        print(f"  Topik: Stack | Queue | Linked List | Array List  ")
         print(f"  Pembuat: Gading Nst                                             ")
         print(f"{BLUE}{'=' * 70}{RESET}\n")
         
@@ -326,7 +326,7 @@ def main():
         print(f"      - Karakteristik: Masuk dari REAR (belakang), keluar dari FRONT (depan)")
         print(f"      - Contoh: Antrean print dokumen, buffer jaringan")
         print()
-        print(f"[{CYAN}3{RESET}] {BOLD}Singly Linked List (Senarai Berantai Tunggal){RESET}")
+        print(f"[{CYAN}3{RESET}] {BOLD}Linked List (Senarai Berantai){RESET}")
         print(f"      - Karakteristik: Rantai dinamis dengan node [Data | Next Pointer]")
         print(f"      - Contoh: Manajemen playlist musik, alokasi memori berantai")
         print()
