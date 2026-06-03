@@ -75,32 +75,31 @@ Berikut adalah contoh pembuatan Stack paling sederhana di Python menggunakan lis
 
 ### 1. Inisialisasi Wadah Stack
 ```python
-class StackSederhana:
+class Stack:
     def __init__(self):
-        self.stack = []  # List kosong bawaan Python
+        self.items = []  # Array internal untuk menyimpan elemen
 ```
 
 ### 2. Fungsi Push (Masuk TOP)
 ```python
     def push(self, item):
-        self.stack.append(item)  # Menambahkan data di akhir list (bertindak sebagai TOP)
+        self.items.append(item)  # Tambahkan item ke paling atas
 ```
 
 ### 3. Fungsi Pop (Keluar TOP)
 ```python
     def pop(self):
-        if len(self.stack) == 0:
-            raise IndexError("Stack Kosong!")
-        # pop() tanpa argumen otomatis mengambil & menghapus elemen paling akhir (TOP)
-        return self.stack.pop()
+        if self.is_empty():
+            raise IndexError("Error: Pop dari Stack kosong tidak diperbolehkan!")
+        return self.items.pop()  # Hapus dan kembalikan elemen teratas
 ```
 
 ### 4. Fungsi Peek (Intip TOP)
 ```python
     def peek(self):
-        if len(self.stack) == 0:
-            raise IndexError("Stack Kosong!")
-        return self.stack[-1]  # Membaca indeks terakhir
+        if self.is_empty():
+            raise IndexError("Error: Peek dari Stack kosong tidak diperbolehkan!")
+        return self.items[-1]  # Kembalikan elemen teratas tanpa menghapusnya
 ```
 
 ---

@@ -99,33 +99,33 @@ Berikut contoh paling sederhana cara memprogram Dynamic Array di Python mengguna
 
 ### 1. Inisialisasi Memori Awal
 ```python
-class DynamicArraySederhana:
-    def __init__(self):
-        self.size = 0          # Indeks aktif
-        self.capacity = 4      # Kapasitas fisik awal
-        self.items = [None] * self.capacity  # Pra-alokasi memori kosong
+class ArrayList:
+    def __init__(self, initial_capacity=4):
+        self._size = 0          # Jumlah elemen yang aktif terisi
+        self._capacity = initial_capacity      # Kapasitas fisik array di RAM
+        self._items = [None] * self._capacity  # Alokasi memori awal (pre-allocated)
 ```
 
 ### 2. Tambah Data & Resize Otomatis
 ```python
     def append(self, item):
-        # Jika memori penuh, lakukan resize ganda
-        if self.size == self.capacity:
-            self._resize(2 * self.capacity)
+        # Jika kapasitas penuh, gandakan ukuran memori terlebih dahulu
+        if self._size == self._capacity:
+            self._resize(2 * self._capacity)
             
-        self.items[self.size] = item
-        self.size += 1
+        self._items[self._size] = item  # Isi slot berikutnya
+        self._size += 1  # Tambah hitungan elemen aktif
 
     def _resize(self, new_capacity):
-        print(f"Resize memori: {self.capacity} -> {new_capacity}")
-        new_items = [None] * new_capacity
+        print(f"Resizing capacity: {self._capacity} -> {new_capacity}")
+        new_items = [None] * new_capacity  # Buat array baru yang lebih besar
         
-        # Salin data lama ke wadah memori baru
-        for i in range(self.size):
-            new_items[i] = self.items[i]
+        # Salin semua elemen lama ke array baru
+        for i in range(self._size):
+            new_items[i] = self._items[i]
             
-        self.items = new_items
-        self.capacity = new_capacity
+        self._items = new_items  # Ganti referensi array ke yang baru
+        self._capacity = new_capacity  # Perbarui kapasitas
 ```
 
 ---

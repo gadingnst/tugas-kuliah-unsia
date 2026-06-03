@@ -99,36 +99,36 @@ Berikut adalah contoh pembuatan Linked List paling sederhana dari dasar di Pytho
 class Node:
     def __init__(self, data):
         self.data = data
-        self.next = None  # Pointer penunjuk berikutnya
+        self.next = None  # Pointer ke Node berikutnya (default kosong)
 ```
 
 ### 2. Hubungkan Simpul Secara Manual
 ```python
-# Buat simpul-simpul terpisah
-simpul1 = Node("Apel")
-simpul2 = Node("Pisang")
+# Buat dua node terpisah
+node1 = Node("Apple")
+node2 = Node("Banana")
 
-# Hubungkan pointer next simpul1 ke simpul2
-simpul1.next = simpul2  # Hasil: "Apel" ──► "Pisang" ──► None
+# Sambungkan pointer next node1 ke node2
+node1.next = node2  # Hasil: "Apple" ──► "Banana" ──► None
 ```
 
 ### 3. Buat Kelas Pengendali Utama (`LinkedList`)
 ```python
-class LinkedListSederhana:
+class LinkedList:
     def __init__(self):
-        self.head = None  # Mulanya rantai kosong
+        self.head = None  # Awal mula rantai selalu kosong
 
-    def tambah_di_akhir(self, data_baru):
-        node_baru = Node(data_baru)
+    def insert_at_end(self, data):
+        new_node = Node(data)  # Buat node baru
         if self.head is None:
-            self.head = node_baru
+            self.head = new_node  # Jika kosong, node ini jadi Head
             return
         
-        # Berjalan ke simpul paling ujung belakang
+        # Telusuri sampai Node paling ujung belakang
         current = self.head
         while current.next is not None:
             current = current.next
-        current.next = node_baru  # Sambungkan di akhir
+        current.next = new_node  # Sambungkan di ujung rantai
 ```
 
 ---

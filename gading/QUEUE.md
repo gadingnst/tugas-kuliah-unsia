@@ -72,30 +72,31 @@ Berikut adalah contoh pembuatan Queue paling dasar di Python menggunakan list bi
 
 ### 1. Inisialisasi Wadah Queue
 ```python
-class QueueSederhana:
+class Queue:
     def __init__(self):
-        self.queue = []  # List kosong bawaan Python
+        self.items = []  # List internal untuk menyimpan elemen antrean
 ```
 
 ### 2. Fungsi Enqueue (Masuk Belakang)
 ```python
     def enqueue(self, item):
-        self.queue.append(item)  # Menambahkan data di ujung belakang
+        self.items.append(item)  # Tambahkan item ke bagian belakang antrean
 ```
 
 ### 3. Fungsi Dequeue (Keluar Depan)
 ```python
     def dequeue(self):
-        if len(self.queue) == 0:
-            raise IndexError("Queue Kosong!")
-        # pop(0) mengambil indeks terdepan dan otomatis menggeser sisa data ke kiri
-        return self.queue.pop(0)
+        if self.is_empty():
+            raise IndexError("Error: Dequeue dari Queue kosong tidak diperbolehkan!")
+        return self.items.pop(0)  # Hapus dan kembalikan elemen paling depan
 ```
 
-### 4. Cetak Elemen
+### 4. Front (Intip Depan)
 ```python
-    def cetak(self):
-        print("FRONT ──►", " ──► ".join(self.queue), "──► REAR")
+    def front(self):
+        if self.is_empty():
+            raise IndexError("Error: Queue kosong!")
+        return self.items[0]  # Kembalikan elemen depan tanpa menghapusnya
 ```
 
 ---

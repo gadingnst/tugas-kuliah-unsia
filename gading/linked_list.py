@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Modul Struktur Data: Linked List (Senarai Berantai)
+Modul Struktur Data: Linked List
 Karakteristik: Elemen-elemen disimpan dalam objek 'Node' yang terhubung
 oleh pointer (penunjuk) alamat memori berikutnya. Tidak berurutan secara fisik di memori.
 """
