@@ -25,6 +25,10 @@ Berdasarkan dokumen studi kasus, sistem peminjaman buku perpustakaan memiliki al
    * **Laporan Peminjaman** yang ditujukan kepada Pimpinan.
    * **Daftar Pengeluaran Buku** yang ditujukan kepada Bagian Pengadaan.
 
+*Analisis Kritis:
+* **Temuan Typo pada Deskripsi Kasus:** Pada dokumen studi kasus asli halaman 1, terdapat kesalahan penulisan *"...lalu dibuatkan kartu anggoa"*.
+* **Analisis & Solusi:** Istilah yang benar adalah **"anggota"**. Kesalahan tik ini sebaiknya dikoreksi pada dokumentasi sistem agar bersifat formal dan tidak menimbulkan ambiguitas bagi pengembang.
+
 ---
 
 ## 3. Komponen Perancangan Terstruktur
@@ -59,7 +63,129 @@ Terdapat 3 penyimpanan data utama yang digunakan oleh sistem:
 
 ---
 
-## 4. Analisis Kamus Data & Spesifikasi Proses
+## 4. Penjelasan Diagram-Diagram dalam Studi Kasus
+
+### A. Diagram Konteks (Halaman 2)
+Diagram Konteks menggambarkan sistem **"Sistem Peminjaman Buku"** sebagai satu proses tunggal (*black box*) yang berinteraksi dengan tiga entitas luar. Berikut adalah rincian aliran data yang tergambar:
+
+| Arah | Dari | Ke | Aliran Data |
+|------|------|----|-------------|
+| Masuk | Anggota | Sistem | `Id-anggota` (data identitas untuk pendaftaran) |
+| Masuk | Anggota | Sistem | `Kd-Buku Pinjaman` (kode buku yang ingin dipinjam) |
+| Masuk | Anggota | Sistem | `Info Status Buku` (permintaan cek status buku) |
+| Keluar | Sistem | Anggota | `Kartu Anggota` (hasil pendaftaran) |
+| Keluar | Sistem | Anggota | `Bukti Pinjaman` (bukti transaksi peminjaman) |
+| Keluar | Sistem | Anggota | `Info Status Buku` (hasil pengecekan status) |
+| Masuk | Bag. Pengadaan | Sistem | `Id-buku` (data buku baru yang disuplai) |
+| Keluar | Sistem | Bag. Pengadaan | `Daftar Pengeluaran Buku` (laporan buku yang keluar/dipinjam) |
+| Keluar | Sistem | Pimpinan | `Laporan Penjualan` |
+
+Diagram Konteks ini berfungsi untuk memberikan gambaran umum (*high-level view*) tentang batasan sistem — apa saja yang masuk dan keluar dari sistem serta siapa aktor yang terlibat, tanpa menunjukkan detail proses internal.
+
+*Analisis Kritis:
+* **Temuan Kesalahan Aliran Data:** Aliran data dari sistem ke entitas **Pimpinan** bertuliskan **"Laporan Penjualan"**.
+* **Analisis & Solusi:** Domain sistem ini adalah **Peminjaman Buku Perpustakaan**, bukan ritel atau e-commerce. Pimpinan perpustakaan seharusnya menerima **"Laporan Peminjaman"** sesuai dengan deskripsi kebutuhan bisnis. Rekomendasi perbaikannya adalah mengubah nama aliran data tersebut menjadi **"Laporan Peminjaman"** agar sesuai dengan proses bisnis perpustakaan.
+
+### B. DFD Level-0 (Halaman 3)
+DFD Level-0 memecah sistem menjadi **5 proses utama** beserta koneksinya ke Data Store dan entitas luar. Berikut penjelasan setiap proses yang tergambar:
+
+**Proses-proses:**
+1. **`1.0 Pendaftaran`** — Menerima `Id-anggota` dari entitas Anggota, memproses pendaftaran, lalu menghasilkan `Kartu Anggota` yang dikirim kembali ke Anggota. Proses ini terhubung ke Data Store `Anggota` untuk membaca dan menyimpan data anggota.
+2. **`2.0 Rekam dt-buku`** — Menerima `Id-buku` dari entitas Bag. Pengadaan, lalu menyimpan data buku ke Data Store `Buku`. Proses ini berfungsi mencatat buku-buku baru yang masuk ke perpustakaan.
+3. **`3.0 Cari & tampilkan status bku`** — Menerima `Info Status Buku` dari Anggota dan mengembalikan `Info Status Buku` ke Anggota.
+4. **`4.0 Peminjaman`** — Menerima `Kd-Buku Pinjaman` dan `Kartu Anggota` dari Anggota. Proses ini terhubung ke Data Store `Peminjaman` (untuk menulis data peminjaman) dan Data Store `Buku` (membaca data buku via aliran `Dt Buku Ada`). Menghasilkan output berupa buku fisik dan bukti peminjaman.
+5. **`5.0 Pelaporan`** — Membaca data dari Data Store `Peminjaman` dan `Buku`, kemudian menghasilkan dua output: `Lapoan Pemianjaman` ke Pimpinan, dan `Daftar Pengeluaran Buku` ke Bag. Pengadaan.
+
+**Data Store yang tergambar:**
+* `Anggota` — terhubung ke proses 1.0
+* `Buku` — terhubung ke proses 2.0, 4.0, dan 5.0
+* `Peminjaman` — terhubung ke proses 4.0 dan 5.0
+
+*Analisis Kritis:
+* **Temuan Cacat Logika (Black Hole / Miracle Process) pada Proses 3.0:** Proses `3.0 Cari & tampilkan status bku` menerima input dan menghasilkan output tetapi tidak terhubung ke *Data Store* manapun.
+  * **Analisis & Solusi:** Secara prinsip RPL, proses pencarian status buku mustahil memberikan informasi status buku secara dinamis tanpa membaca data dari Data Store `Buku`. Ini melanggar aturan dasar perancangan DFD. Solusinya, tambahkan aliran data bertipe *read* (panah dari *Data Store* ke proses) antara Data Store `Buku` dengan proses `3.0`.
+* **Temuan Typo Aliran Data:** Aliran data ke Pimpinan tertulis **`Lapoan Pemianjaman`**.
+  * **Analisis & Solusi:** Terdapat kesalahan ketik (kurang huruf 'r' pada Laporan dan kelebihan huruf 'i' pada Peminjaman). Solusinya, ubah penulisan menjadi **"Laporan Peminjaman"** agar konsisten dengan standar dokumen formal.
+
+### C. DFD Level-1 Proses 1.0: Pendaftaran (Halaman 3)
+Diagram ini mendekomposisi proses `1.0 Pendaftaran` menjadi 3 sub-proses:
+
+1. **`1.1 Cari dt Anggota`** — Menerima `Id anggota` dari entitas Anggota, lalu melakukan pencarian apakah anggota sudah terdaftar atau belum. Jika sudah terdaftar, data anggota diteruskan langsung.
+2. **`1.2 Rekam data Anggota`** — Menerima `Data anggota` dari proses 1.1 (jika anggota belum terdaftar), lalu merekam data anggota baru ke dalam penyimpanan.
+3. **`1.3 Cetak Kartu Anggota`** — Menerima data dari proses 1.2, kemudian mencetak `Kartu anggota` yang dikirimkan ke entitas Anggota.
+
+**Aliran Data:**
+* `Anggota` → *(Id anggota)* → `1.1` → *(Data anggota)* → `1.2` → `1.3` → *(Kartu anggota)* → `Anggota`
+
+*Analisis Kritis:
+* **Temuan Cacat DFD (Hilangnya Penyimpanan Data):** DFD Level-1 Proses 1.0 Pendaftaran ini sama sekali tidak menampilkan Data Store `Anggota`.
+  * **Analisis & Solusi:** Sub-proses `1.1` memerlukan akses *read* dan sub-proses `1.2` memerlukan akses *write* ke Data Store `Anggota` agar pencarian dan perekaman data anggota dapat berjalan secara nyata. Ketiadaan Data Store ini menyebabkan proses-proses tersebut tergolong sebagai *Miracle Process*. Solusinya, munculkan Data Store `Anggota` di diagram DFD Level-1 ini, lalu buat aliran data bertipe *read* ke proses `1.1` dan aliran bertipe *write* dari proses `1.2` ke Data Store.
+
+### D. DFD Level-1 Proses 4.0: Peminjaman (Halaman 4)
+Diagram ini mendekomposisi proses `4.0 Peminjaman` menjadi 3 sub-proses:
+
+1. **`4.1 Rekam Peminjaman`** — Mencatat transaksi peminjaman baru. Terhubung ke Data Store `Peminjam(an)` untuk menyimpan record peminjaman, dan membaca `Data buku ada` dari Data Store `Buku` untuk memvalidasi ketersediaan buku.
+2. **`4.2 Cetak Bukti Peminajaman`** — Menerima data dari proses 4.1, kemudian mencetak bukti peminjaman yang diserahkan ke entitas Anggota.
+3. **`4.3 Update Bukti Peminjaman`** — Memperbarui data di Data Store `Buku` setelah peminjaman berhasil direkam (mengurangi stok).
+
+**Data Store yang tergambar:**
+* `Buku` — terhubung ke proses 4.1 (read: `Data buku ada`) dan proses 4.3 (write: update stok)
+* `Peminjam(an)` — terhubung ke proses 4.1 (write: rekam peminjaman)
+
+**Aliran Data:**
+* `Anggota` → `4.1` → `4.2` → *(Bukti Peminjaman)* → `Anggota`
+* `4.1` → `4.3` → update Data Store `Buku`
+
+*Analisis Kritis:
+* **Temuan Kesalahan Label Proses 4.3:** Di DFD Level-1 Proses 4.0, proses `4.3` diberi label **"Update Bukti Peminjaman"**.
+  * **Analisis & Solusi:** Berdasarkan daftar kebutuhan awal, fungsi proses 4.3 adalah memutakhirkan stok buku di database. Nama "Update Bukti Peminjaman" sangat menyesatkan karena mengindikasikan modifikasi terhadap arsip bukti transaksi, bukan pengurangan stok buku. Solusinya, ubah label proses 4.3 menjadi **"Update Buku"** agar selaras dengan kebutuhan fungsional sistem.
+* **Temuan Aliran Data Masuk & Keluar Tidak Lengkap pada Proses 4.1:** Aliran data input dari entitas Anggota (`Kd-Buku Pinjaman` dan `Kartu Anggota`) serta aliran *write* ke Data Store `Peminjaman` tidak digambarkan secara eksplisit dan lengkap.
+  * **Analisis & Solusi:** Tanpa aliran masukan yang jelas, diagram tidak menunjukkan dari mana data transaksi diperoleh oleh sub-proses 4.1. Solusinya, tambahkan visualisasi aliran data masukan dari entitas Anggota ke proses 4.1, dan pastikan panah aliran data dari proses 4.1 ke Data Store `Peminjaman` tergambar jelas.
+* **Temuan Typo Label Proses 4.2:** Proses `4.2` berlabel **"Cetak Bukti Peminajaman"**.
+  * **Analisis & Solusi:** Terjadi typo pada kata "Peminajaman" (kelebihan huruf 'a' sebelum 'j'). Solusinya, koreksi label menjadi **"Cetak Bukti Peminjaman"**.
+
+### E. DFD Level-1 Proses 5.0: Pelaporan (Halaman 4)
+Diagram ini mendekomposisi proses `5.0 Pelaporan` menjadi 2 sub-proses:
+
+1. **`5.1 Cetak Laporan`** — Membaca data dari Data Store `Peminjaman`, kemudian menghasilkan `Lap. Peminjaman` yang ditujukan ke entitas Pimpinan.
+2. **`5.2 Cetak Daftar Pengeluaran`** — Membaca data dari Data Store `Buku`, kemudian menghasilkan `Daftar Pengeluaran` yang ditujukan ke entitas Bag. Pengadaan.
+
+**Data Store yang tergambar:**
+* `Peminjaman` — terhubung ke proses 5.1 (read)
+* `Buku` — terhubung ke proses 5.2 (read)
+
+**Aliran Data:**
+* Data Store `Peminjaman` → `5.1` → *(Lap. Peminjaman)* → `Pimpinan`
+* Data Store `Buku` → `5.2` → *(Daftar Pengeluaran)* → `Bag. Pengadaan`
+
+*Analisis Kritis:
+* **Analisis Aliran Data:** Aliran data secara visual di DFD Level-1 Proses 5.0 sudah benar dan konsisten memecah proses 5.0 Level-0. Kesalahan yang berkaitan dengan bagian ini terletak pada penamaan label pada bagian detail Spesifikasi Proses (yang dibahas di bagian analisis Spesifikasi Proses).
+
+### F. Diagram ER / Pemodelan Data (Halaman 5)
+Diagram Entity-Relationship (ER) menggambarkan hubungan antar entitas data dalam sistem. Terdapat 3 entitas utama:
+
+1. **Entitas `Anggota`**
+   * Atribut: `Kd-anggota` (PK), `Nm-anggota`, `Tgl-lahir`, `Tgl-daftar`
+   * Relasi: **Melakukan** → terhubung ke entitas `Peminjaman`
+
+2. **Entitas `Peminjaman`**
+   * Atribut: `No-pinjam` (PK), `Tgl-pinjam`, `Tgl-kembali`
+   * Relasi: Merupakan entitas penghubung (*associative entity*) antara `Anggota` dan `Buku`
+
+3. **Entitas `Buku`**
+   * Atribut: `Kd-buku` (PK), `Judul`, `Penerbit`, `Pengarang`, `Stok`
+   * Relasi: **Terdiri dr** → terhubung ke entitas `Peminjaman`
+
+**Hubungan Relasi:**
+* `Anggota` — *(Melakukan)* → `Peminjaman` — *(Terdiri dr)* → `Buku`
+* Satu anggota dapat **melakukan** banyak peminjaman, dan satu peminjaman **terdiri dari** buku yang dipinjam. Diagram ini menunjukkan hubungan *many-to-many* antara Anggota dan Buku yang dijembatani oleh entitas Peminjaman.
+
+*Analisis Kritis:
+* **Analisis Struktur ER:** Pemodelan ER secara konseptual sudah tepat. Entitas `Peminjaman` berfungsi sebagai entitas asosiatif untuk memecah relasi *many-to-many* antara `Anggota` dan `Buku`. Atribut kunci utama (*Primary Key*) seperti `Kd-anggota`, `No-pinjam`, dan `Kd-buku` juga telah terpetakan dengan baik untuk menjamin integritas data.
+
+---
+
+## 5. Analisis Kamus Data & Spesifikasi Proses
 
 ### A. Kamus Data (Data Dictionary)
 Kamus data mendefinisikan struktur elemen data yang mengalir dalam sistem maupun yang disimpan di dalam *data store*:
@@ -70,105 +196,41 @@ Kamus data mendefinisikan struktur elemen data yang mengalir dalam sistem maupun
 * **Aliran Data Utama:**
   * `Id-anggota` = `nm_anggota` + `tgl_lahir` + `no_identitas` (input pendaftaran)
   * `Kartu Anggota` = `@Kd-anggota` + `nm-anggota` + `tgl-lahir` + `tgl_daftar` + `masa_berlaku`
-  * `Bukti-pinjaman` = `no-bukti` + `kd-anggota` + `nm_anggota` + `tgl_pinjam` + `{kd_buku + judul + pengarang + penerbit}` + `tgl_hrs_kembali` + `nm_petugas`
+  * `Bukti-pinjaman` = `no-bukti` + `kd-anggota` + `nm_anggota` + `tgl-pinjam` + `{kd_buku + judul + pengarang + penerbit}` + `tgl_hrs_kembali` + `nm_petugas`
+
+*Analisis Kritis:
+* **Temuan Ketidakkonsistenan Penulisan Variabel (Naming Convention) & Typo:**
+  * Terjadi pencampuran karakter penghubung seperti dash `-` dan underscore `_` (contoh: `tgl-lahir` vs `tgl_daftar`).
+  * Di Kamus Data Aliran Data (Halaman 5), terdapat field `tgl_lahit` (typo huruf 'r' menjadi 't') dan `no_identitas`, padahal di *Data Store* Anggota menggunakan field `tgl-lahir`.
+  * **Analisis & Solusi:** Inkonsistensi penamaan ini akan menyulitkan developer saat melakukan mapping database fisik. Rekomendasi solusinya adalah menerapkan standardisasi penamaan secara konsisten (disarankan menggunakan *snake_case* secara menyeluruh, contoh: `kd_anggota`, `nm_anggota`, `tgl_lahir`, `tgl_daftar`), serta memperbaiki typo `tgl_lahit` menjadi `tgl_lahir`.
 
 ### B. Spesifikasi Proses (Process Specification)
 Logika proses krusial digambarkan dengan menggunakan *Structured English* / *Pseudocode*. Contoh logika pemrosesan data:
 * **Proses 4.3 (Update Buku):** Mengurangi jumlah stok buku ketika transaksi peminjaman berhasil direkam.
 * **Proses 1.1 (Cari Data Anggota):** Melakukan perulangan pencarian sekuensial (*sequential search*) pada tabel anggota berdasarkan *input* ID anggota hingga ditemukan atau mencapai akhir file (*EOF*).
 
----
-
-## 5. Analisis Kritis: Temuan Kesalahan (*Logic Defects*) & Inkonsistensi Desain
-Setelah menelaah dokumen studi kasus secara saksama, ditemukan beberapa kesalahan perancangan yang cukup krusial. Temuan ini sangat penting karena dapat menyebabkan kegagalan sistem (*system failure*) atau ketidaksesuaian implementasi jika langsung diserahkan kepada tim pengembang (*programmer*).
-
-Berikut adalah daftar temuan defect beserta penjelasannya:
-
-### 1. Kesalahan Aliran Data pada Diagram Konteks (Halaman 2)
-* **Temuan:** Aliran data dari sistem ke entitas **Pimpinan** tertulis **"Laporan Penjualan"**.
-* **Analisis Cacat:** Studi kasus ini membahas tentang **Sistem Peminjaman Buku Perpustakaan**, bukan sistem penjualan ritel atau e-commerce. Pimpinan perpustakaan seharusnya menerima **"Laporan Peminjaman"** sesuai dengan deskripsi kebutuhan bisnis yang tertera di halaman 1.
-
-### 2. Cacat Logika Aliran Data pada DFD Level-0 (Halaman 3)
-* **Temuan:** Proses **`3.0 cari & tampilkan status bku`** tidak terhubung ke *Data Store* mana pun.
-* **Analisis Cacat:** Di dalam diagram, proses 3.0 menerima input `Info Status Buku` dari Anggota, lalu mengeluarkan output `Info Status Buku` kembali ke Anggota. Namun, proses ini **tidak membaca data dari Data Store `Buku`**. Secara prinsip Rekayasa Perangkat Lunak, sebuah proses pencarian status buku mustahil mengembalikan informasi valid tanpa melakukan query/pembacaan data ke penyimpanan data (tabel Buku). Ini adalah pelanggaran aturan dasar DFD (*Black Hole / Miracle Process*).
-
-### 3. Kesalahan Penulisan Objek (*Copy-Paste Error*) pada Spesifikasi Proses 4.3 (Halaman 7)
-* **Temuan:** Pada deskripsi algoritma proses **`4.3 Update buku`**, baris ke-4 tertulis: `"Search ke table barang"`.
-* **Analisis Cacat:** Di dalam database sistem perpustakaan ini hanya didefinisikan tiga tabel, yaitu `Anggota`, `Buku`, dan `Peminjaman`. Tidak ada tabel bernama **`barang`**. Istilah "barang" biasanya merujuk pada sistem inventori toko. Hal ini mengindikasikan adanya kelalaian penulisan akibat menyalin (*copy-paste*) template pseudocode sistem inventori barang tanpa menyesuaikan variabel dengan domain studi kasus perpustakaan.
-
-### 4. Inkonsistensi Penamaan Aliran Data & Typo
-* **Temuan & Analisis:**
-  * Di DFD Level-0 (Halaman 3), aliran data ke Pimpinan tertulis **`Lapoan Pemianjaman`** (Typo: kurang huruf 'r' pada Laporan dan kelebihan huruf 'i' pada Peminjaman).
-  * Di Kamus Data Aliran Data (Halaman 5), definisi `Id-anggota` menggunakan field `tgl_lahit` dan `no_identitas`, padahal di *Data Store* Anggota menggunakan field `tgl-lahir`. Penggunaan karakter penghubung (underscore `_` vs dash `-`) tidak konsisten.
-
-### 5. Typo pada Deskripsi Sistem (Halaman 1)
-* **Temuan:** Pada paragraf deskripsi sistem, tertulis *"...lalu dibuatkan kartu **anggoa**"*.
-* **Analisis Cacat:** Kata yang benar adalah **"anggota"**. Meskipun ini typo kecil, dalam dokumen spesifikasi kebutuhan formal, kesalahan semacam ini menurunkan kualitas dokumen dan berpotensi menimbulkan kebingungan ketika diserahkan ke tim pengembang.
-
-### 6. Kesalahan Label Proses 4.3 pada DFD Level-1 Proses 4.0 (Halaman 4)
-* **Temuan:** Di DFD Level-1 untuk Proses 4.0, proses 4.3 berlabel **"Update Bukti Peminjaman"**.
-* **Analisis Cacat:** Pada daftar *requirement* di halaman 1, proses `4.3` didefinisikan sebagai **"Update buku"** yang berfungsi memperbarui stok buku setelah peminjaman berhasil dicatat. Sedangkan **"Update Bukti Peminjaman"** memiliki makna yang berbeda secara fundamental — merujuk pada perubahan dokumen bukti, bukan pembaruan stok. Inkonsistensi ini dapat menyebabkan *programmer* mengimplementasikan fungsionalitas yang salah.
-
-### 7. DFD Level-1 Proses 1.0 (Halaman 3): Tidak Ada Koneksi ke Data Store
-* **Temuan:** Diagram DFD Level-1 Proses 1.0 Pendaftaran menampilkan proses `1.1 Cari dt Anggota`, `1.2 Rekam data Anggota`, dan `1.3 Cetak Kartu Anggota`, namun **tidak ada satupun koneksi ke Data Store `Anggota`**.
-* **Analisis Cacat:** Proses `1.1` memerlukan akses *read* ke Data Store Anggota untuk melakukan pencarian, dan proses `1.2` memerlukan akses *write* untuk menyimpan data anggota baru. Tanpa koneksi ke Data Store, seluruh sub-proses pendaftaran menjadi *Miracle Process* — menghasilkan output tanpa sumber data yang valid. Ini merupakan pelanggaran aturan DFD yang sama seperti temuan nomor 2.
-
-### 8. Aliran Data Tidak Lengkap pada DFD Level-1 Proses 4.0 (Halaman 4)
-* **Temuan:** Proses `4.1 Rekam Peminjaman` tidak menampilkan koneksi input dari entitas luar (Anggota) maupun koneksi *write* ke Data Store `Peminjaman` secara eksplisit.
-* **Analisis Cacat:** Berdasarkan alur bisnis, Anggota menyerahkan `Kd-Buku Pinjaman` dan `Kartu Anggota` sebagai input. Proses 4.1 kemudian harus menulis record baru ke Data Store `Peminjaman`. Tanpa aliran data yang jelas, diagram ini tidak dapat dijadikan acuan implementasi yang memadai.
-
-### 9. Pertukaran Label Spesifikasi Proses 5.1 dan 5.2 (Halaman 6)
-* **Temuan:** Pada bagian Spesifikasi Proses (halaman 6), proses yang dideskripsikan sebagai **"5.1 Cetak laporan peminjaman"** berisi logika pembuatan laporan peminjaman untuk Pimpinan.
-* **Analisis Cacat:** Berdasarkan daftar *requirement* di halaman 1, proses `5.1` seharusnya adalah **"Cetak daftar pengeluaran buku"** (untuk Bagian Pengadaan), sedangkan `5.2` adalah **"Cetak laporan peminjaman"** (untuk Pimpinan). Terjadi **pertukaran label** yang menyebabkan ketidaksesuaian antara spesifikasi proses dengan *requirement* dan DFD.
-
-### 10. Typo "Peminajaman" pada DFD Level-1 Proses 4.0 (Halaman 4)
-* **Temuan:** Proses `4.2` pada DFD Level-1 Proses 4.0 berlabel **"Cetak Bukti Peminajaman"**.
-* **Analisis Cacat:** Penulisan yang benar adalah **"Peminjaman"**. Huruf 'a' dan 'j' tertukar. Typo pada label proses di diagram formal dapat menimbulkan ambiguitas saat *traceability* antara diagram dan spesifikasi proses.
-
-### 11. Cacat Logika Algoritma pada Spesifikasi Proses 1.1 (Halaman 7)
-* **Temuan:** Pseudocode proses `1.1 Cari data anggota` menggunakan struktur `While not EOF` dengan `If-Else` di dalamnya yang langsung menampilkan **"data tdk ada"** ketika satu record tidak cocok.
-* **Analisis Cacat:** Logika ini secara fundamental salah. Pada setiap iterasi *loop*, jika `id-anggota` tidak sama dengan `id_tabel_anggota`, program langsung menampilkan pesan *"data tidak ada"* — padahal masih ada record lain yang belum diperiksa. Algoritma yang benar seharusnya menggunakan variabel *flag* (misalnya `found = false`), lalu memeriksa seluruh record, dan baru menampilkan pesan *"data tidak ada"* **setelah loop berakhir** dan *flag* masih bernilai `false`. Pseudocode yang benar:
-  ```
-  Begin
-    Open table anggota
-    Input id-anggota
-    Set found = false
-    While not EOF anggota
-      If id-anggota = id_tabel_anggota
-        Then tampilkan data anggota
-        Set found = true
+*Analisis Kritis:
+* **Temuan Pertukaran Label Proses 5.1 dan 5.2:** Pada bagian Spesifikasi Proses (Halaman 6) di dokumen asli, deskripsi proses `5.1` berlabel **"Cetak laporan peminjaman"** (untuk Pimpinan).
+  * **Analisis & Solusi:** Berdasarkan requirement di halaman 1, proses `5.1` adalah **"Cetak daftar pengeluaran buku"** (Bagian Pengadaan), sedangkan `5.2` adalah **"Cetak laporan peminjaman"** (Pimpinan). Penomoran ini tertukar dan membingungkan pengembang. Solusinya, tukar label spesifikasi proses agar `5.1` merujuk ke Daftar Pengeluaran Buku dan `5.2` merujuk ke Laporan Peminjaman.
+* **Temuan Kesalahan Objek (Copy-Paste Error) pada Spesifikasi Proses 4.3:** Di deskripsi algoritma proses `4.3 Update buku` (Halaman 7), baris ke-4 tertulis: `"Search ke table barang"`.
+  * **Analisis & Solusi:** Sistem perpustakaan ini tidak menggunakan tabel `barang`, melainkan tabel `Buku`. Hal ini merupakan indikasi kelalaian copy-paste dari template pseudocode sistem inventori toko. Rekomendasi solusinya adalah mengubah penulisan variabel tabel tersebut menjadi **"Search ke table buku"** agar selaras dengan skema database yang ada.
+* **Temuan Cacat Logika Algoritma Pencarian pada Spesifikasi Proses 1.1:** Algoritma pencarian pada proses `1.1 Cari data anggota` (Halaman 7) menggunakan struktur `While not EOF` dengan percabangan `If-Else` di dalamnya yang langsung menampilkan pesan *"data tdk ada"* ketika satu record tidak cocok.
+  * **Analisis & Solusi:** Logika tersebut salah secara fundamental. Program akan langsung menyimpulkan data tidak ada pada iterasi record pertama jika ID tidak cocok, meskipun data sebenarnya ada di record berikutnya. Solusinya, perbaiki algoritma menggunakan variabel bendera (*flag*) (misalnya `found = false`), cari di seluruh record, dan tampilkan pesan data tidak ada hanya jika pencarian selesai dan `found` masih bernilai `false`.
+  * **Rekomendasi Algoritma yang Benar:**
+    ```
+    Begin
+      Open table anggota
+      Input id-anggota
+      Set found = false
+      While not EOF anggota
+        If id-anggota = id_tabel_anggota
+          Then tampilkan data anggota
+          Set found = true
+        Endif
+      EndWhile
+      If found = false
+        Then tampilkan "data tidak ditemukan"
       Endif
-    EndWhile
-    If found = false
-      Then tampilkan "data tidak ditemukan"
-    Endif
-    Close table anggota
-  End
-  ```
-
----
-
-## 6. Rekomendasi Perbaikan Desain Sistem
-
-Untuk menghasilkan perancangan perangkat lunak yang valid dan siap diimplementasikan, berikut adalah usulan perbaikan terhadap rancangan sistem yang dikelompokkan berdasarkan kategori:
-
-### A. Perbaikan Diagram
-1. **Diagram Konteks (Hal. 2):** Mengubah nama aliran data dari sistem ke Pimpinan dari "Laporan Penjualan" menjadi **"Laporan Peminjaman"** agar konsisten dengan domain perpustakaan.
-2. **DFD Level-0 (Hal. 3):** Menambahkan aliran data bertipe *read* (panah dari *Data Store* ke proses) antara *Data Store* **`Buku`** dengan proses **`3.0 cari & tampilkan status bku`** agar proses tidak menjadi *Miracle Process*.
-3. **DFD Level-1 Proses 1.0 (Hal. 3):** Menambahkan koneksi *read* dari Data Store `Anggota` ke proses `1.1`, dan koneksi *write* dari proses `1.2` ke Data Store `Anggota`.
-4. **DFD Level-1 Proses 4.0 (Hal. 4):**
-   * Mengubah label proses `4.3` dari "Update Bukti Peminjaman" menjadi **"Update Buku"** sesuai *requirement*.
-   * Memperbaiki typo label proses `4.2` dari "Peminajaman" menjadi **"Peminjaman"**.
-   * Menambahkan aliran data input dari entitas Anggota ke proses `4.1`, serta koneksi *write* ke Data Store `Peminjaman`.
-
-### B. Perbaikan Spesifikasi Proses
-5. **Proses 4.3 Update Buku (Hal. 7):** Mengubah baris algoritma `"Search ke table barang"` menjadi **`"Search ke table buku"`** agar sesuai dengan skema database.
-6. **Proses 5.1 & 5.2 (Hal. 6):** Mengoreksi label agar sesuai *requirement* — `5.1` untuk **"Cetak daftar pengeluaran buku"** (Bag. Pengadaan) dan `5.2` untuk **"Cetak laporan peminjaman"** (Pimpinan).
-7. **Proses 1.1 Cari Data Anggota (Hal. 7):** Memperbaiki logika algoritma dengan menambahkan variabel *flag* (`found`) agar pesan "data tidak ada" hanya ditampilkan **setelah seluruh record selesai diperiksa**, bukan di setiap iterasi yang tidak cocok.
-
-### C. Standardisasi & Koreksi Penulisan
-8. **Kamus Data:** Menyelaraskan penulisan variabel secara konsisten menggunakan satu gaya penulisan (*snake_case* atau *kebab-case*) di seluruh diagram, kamus data, dan spesifikasi proses.
-9. **Koreksi Typo:** Memperbaiki seluruh kesalahan ketik yang ditemukan, antara lain:
-   * "kartu anggoa" → "kartu anggota" (Hal. 1)
-   * "Lapoan Pemianjaman" → "Laporan Peminjaman" (Hal. 3)
-   * "tgl_lahit" → "tgl_lahir" (Hal. 5)
+      Close table anggota
+    End
+    ```
