@@ -118,8 +118,7 @@ Diagram ini mendekomposisi proses `1.0 Pendaftaran` menjadi 3 sub-proses:
 * `Anggota` → *(Id anggota)* → `1.1` → *(Data anggota)* → `1.2` → `1.3` → *(Kartu anggota)* → `Anggota`
 
 *Analisis Kritis:
-* **Temuan Cacat DFD (Hilangnya Penyimpanan Data):** DFD Level-1 Proses 1.0 Pendaftaran ini sama sekali tidak menampilkan Data Store `Anggota`.
-  * **Analisis & Solusi:** Sub-proses `1.1` memerlukan akses *read* dan sub-proses `1.2` memerlukan akses *write* ke Data Store `Anggota` agar pencarian dan perekaman data anggota dapat berjalan secara nyata. Ketiadaan Data Store ini menyebabkan proses-proses tersebut tergolong sebagai *Miracle Process*. Solusinya, munculkan Data Store `Anggota` di diagram DFD Level-1 ini, lalu buat aliran data bertipe *read* ke proses `1.1` dan aliran bertipe *write* dari proses `1.2` ke Data Store.
+* **Analisis Struktur DFD Level-1 Proses 1.0:** Secara struktural, diagram ini sudah benar dan konsisten dengan DFD Level-0. Diagram ini menampilkan Data Store `Anggota` di bagian tengah untuk melayani pencarian data (proses `1.1`), perekaman data baru (proses `1.2`), dan pencetakan kartu (proses `1.3`). Tidak ditemukan adanya kesalahan logis (*logic defect*) pada diagram dekomposisi ini.
 
 ### D. DFD Level-1 Proses 4.0: Peminjaman (Halaman 4)
 Diagram ini mendekomposisi proses `4.0 Peminjaman` menjadi 3 sub-proses:
